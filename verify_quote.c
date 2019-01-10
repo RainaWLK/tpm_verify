@@ -53,7 +53,7 @@ int read_data(const char *file, Data *data) {
     return res;
 }
 
-int verify(buf, buflen) {
+int verify(char *buf, int buflen) {
     int res = EXIT_SUCCESS;
 
     EVP_PKEY *pubkey = NULL;
