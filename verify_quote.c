@@ -53,7 +53,7 @@ int read_data(const char *file, Data *data) {
     return res;
 }
 
-int verify(buf, buflen) {
+char* verify(buf, buflen) {
     int res = EXIT_SUCCESS;
 
     EVP_PKEY *pubkey = NULL;
@@ -71,8 +71,8 @@ int verify(buf, buflen) {
 
     Data quote = {0};
     //read_data("quote.data", &quote);
-    data.size = buflen;
-    data.data = buf;
+    quote.size = buflen;
+    quote.data = buf;
 
     EVP_VerifyUpdate(mdctx, quote.data, quote.size);
     if (res == 0) {
