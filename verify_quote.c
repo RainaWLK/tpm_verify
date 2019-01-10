@@ -89,7 +89,7 @@ int verify(char *buf, int buflen) {
         printf("Verified failed...\n");
     }
 
-    free(quote.data);
+    //free(quote.data);
     free(signature.data);
 
     return verify;
