@@ -180,7 +180,7 @@ int main(int argc , char *argv[]) {
                         char body[2048];
                         memset(body, sizeof(body), 0);
 
-                        if(verify == 1) {
+                        if(result == 1) {
                             strcpy(body, "1");
                         } else {
                             strcpy(body, "0");
