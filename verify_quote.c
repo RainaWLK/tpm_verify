@@ -53,7 +53,7 @@ int read_data(const char *file, Data *data) {
     return res;
 }
 
-int verify(char *buf, int buflen) {
+int verify(char *data, int datalen, char *sig, int siglen) {
     int res = EXIT_SUCCESS;
 
     EVP_PKEY *pubkey = NULL;
@@ -71,8 +71,8 @@ int verify(char *buf, int buflen) {
 
     Data quote = {0};
     //read_data("quote.data", &quote);
-    quote.size = buflen;
-    quote.data = buf;
+    quote.size = datalen;
+    quote.data = data;
 
     EVP_VerifyUpdate(mdctx, quote.data, quote.size);
     if (res == 0) {
@@ -80,7 +80,9 @@ int verify(char *buf, int buflen) {
     }
 
     Data signature = {0};
-    read_data("quote.sig", &signature);
+    //read_data("quote.sig", &signature);
+    signature.size = siglen;
+    signature.data = sig;
     int verify = EVP_VerifyFinal(mdctx, signature.data, signature.size, pubkey);
 
     if (verify == 1) {
@@ -90,7 +92,7 @@ int verify(char *buf, int buflen) {
     }
 
     //free(quote.data);
-    free(signature.data);
+    //free(signature.data);
 
     return verify;
 }
@@ -173,7 +175,16 @@ int main(int argc , char *argv[]) {
                         //recv data
                         //char *payload;
                         printf("len=%d\n", nbytes);
-                        int result = verify(buf, nbytes);
+                        char data[1024];
+                        char sig[1024];
+                        char *p = strstr(buf, "\r\n\r\n\r\n\r\n");
+                        unsigned int data_len = p - data;
+                        unsigned int sig_len = nbytes - data_len - 8;
+
+                        memcpy(data, buf, data_len);
+                        memcpy(sig, p+8, sig_len);
+
+                        int result = verify(data, data_len, sig, sig_len);
                         
 
                         //response
