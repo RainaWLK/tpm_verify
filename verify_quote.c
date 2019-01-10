@@ -122,7 +122,7 @@ int main(int argc , char *argv[]) {
     memset(&server, 0, sizeof server);
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons( 8889 );
+    server.sin_port = htons( 8890 );
 
     //Bind
     if( bind(server_sock,(struct sockaddr *)&server , sizeof(server)) < 0)
@@ -177,12 +177,22 @@ int main(int argc , char *argv[]) {
                         printf("len=%d\n", nbytes);
                         char data[1024];
                         char sig[1024];
-                        char *p = strstr(buf, "\r\n\r\n\r\n\r\n");
-                        unsigned int data_len = p - data;
-                        unsigned int sig_len = nbytes - data_len - 8;
+                        char *p;
+                        p = buf;
+                        while(p < buf+nbytes) {
+                            p = memchr (p, '\r', buf+nbytes-p);
+                            if(p == NULL) {
+                                break;
+                            }
+                            if((p+1 == '\n') && (p+2 == '\r') && (p+3 == \n)) {
+                                break;
+                            }
+                        }
+                        unsigned int data_len = p - buf;
+                        unsigned int sig_len = nbytes - data_len - 4;
 
                         memcpy(data, buf, data_len);
-                        memcpy(sig, p+8, sig_len);
+                        memcpy(sig, p+4, sig_len);
 
                         int result = verify(data, data_len, sig, sig_len);
                         
