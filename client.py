@@ -7,8 +7,12 @@ port = 8889                # 设置端口号
 
 s.connect((host, port))
 
-msg = "\r\n\r\ncccc"
+fo = open("quote.data", "rb")
+str = fo.read()
+print ("Read String is : ", str)
 
-s.send(msg.encode('utf-8'))
+#msg = "\r\n\r\ncccc"
+
+s.send(str)
 print(s.recv(1024))
 s.close()  
