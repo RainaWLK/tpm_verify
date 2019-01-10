@@ -1,0 +1,4 @@
+quote.*
+verify_quote
+*.pem
+*.o
