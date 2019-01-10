@@ -53,7 +53,7 @@ int read_data(const char *file, Data *data) {
     return res;
 }
 
-char* verify(buf, buflen) {
+int verify(buf, buflen) {
     int res = EXIT_SUCCESS;
 
     EVP_PKEY *pubkey = NULL;
@@ -82,20 +82,17 @@ char* verify(buf, buflen) {
     Data signature = {0};
     read_data("quote.sig", &signature);
     int verify = EVP_VerifyFinal(mdctx, signature.data, signature.size, pubkey);
-    char result[20];
 
     if (verify == 1) {
         printf("Verified OK\n");
-        sprintf(result, "ok");
     } else {
         printf("Verified failed...\n");
-        sprintf(result, "fail");
     }
 
     free(quote.data);
     free(signature.data);
 
-    return result;
+    return verify;
 }
 
 int main(int argc , char *argv[]) {
@@ -168,31 +165,31 @@ int main(int argc , char *argv[]) {
                     if (newfd > fdmax) { // 持續追蹤最大的 fd
                         fdmax = newfd;
                     }
-                    printf("selectserver: new connection");
+                    printf("selectserver: new connection\n");
                 } else {
                     // read
                     int nbytes = 0;
                     if ((nbytes = recv(i, buf, sizeof buf, 0)) > 0) {
                         //recv data
-                        char *payload;
-                        payload = strstr(buf, "\r\n\r\n") + 4;
-                        printf("%s", payload);
-                        char *result = verify(payload, strlen(payload));
+                        //char *payload;
+                        printf("len=%d\n", nbytes);
+                        int result = verify(buf, nbytes);
                         
 
                         //response
-                        char header[512];
                         char body[2048];
-                        memset(header, sizeof(header), 0);
                         memset(body, sizeof(body), 0);
 
-                        sprintf(body, "{\"result\":\"%s\"}", result);
-
-                        sprintf(header, "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Type: application/json\r\nConnection: close\r\n\r\n", strlen(body));
-
-                        if (send(i, header, strlen(header), 0) == -1) {
-                            perror("send error");
+                        if(verify == 1) {
+                            strcpy(body, "1");
+                        } else {
+                            strcpy(body, "0");
                         }
+
+                        //sprintf(body, "{\"result\":\"%s\"}", result);
+
+                        //sprintf(header, "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\nContent-Type: application/json\r\nConnection: close\r\n\r\n", strlen(body));
+
                         if (send(i, body, strlen(body), 0) == -1) {
                             perror("send error");
                         }
