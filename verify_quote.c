@@ -175,18 +175,23 @@ int main(int argc , char *argv[]) {
                         //recv data
                         //char *payload;
                         printf("len=%d\n", nbytes);
+                        printf("buf=%d\n", buf);
                         char data[1024];
                         char sig[1024];
                         char *p;
                         p = buf;
+                        //char *str = '\r\n\r\n';
                         while(p < buf+nbytes) {
                             p = memchr (p, '\r', buf+nbytes-p);
+                            printf("p=%d\n", p);
                             if(p == NULL) {
                                 break;
                             }
-                            if((p+1 == '\n') && (p+2 == '\r') && (p+3 == \n)) {
+                            if(strncmp(p, "\r\n\r\n", 4) == 0) {
+                                printf("got\n");
                                 break;
                             }
+                            p++;
                         }
                         unsigned int data_len = p - buf;
                         unsigned int sig_len = nbytes - data_len - 4;
